@@ -1,9 +1,10 @@
-interface ChatBubbleProps {
+export interface ChatObject {
+	id: number;
 	from: "ai" | "human";
 	chatText: string;
 }
 
-export default function ChatBubble({ from, chatText }: ChatBubbleProps) {
+export default function ChatBubble({ id, from, chatText }: ChatObject) {
 	return (
 		<div
 			className={`chat ${
