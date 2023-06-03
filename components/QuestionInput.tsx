@@ -23,13 +23,30 @@ export default function QuestionInput({
 		}
 	}, []);
 
-	function handleSubmit(e: FormEvent<HTMLFormElement>) {
+	async function handleSubmit(e: FormEvent<HTMLFormElement>) {
 		e.preventDefault();
+
+		// Create new ChatObject parameters and the newChatHistory
 		let newID: number = chatHistory[chatHistory.length - 1].id + 1;
-		setChatHistory([
+		let newChatHistory: ChatObject[] = [
 			...chatHistory,
 			{ id: newID, from: "human", chatText: userInput },
-		]);
+		];
+
+		// Fetch the AI response using LangChain in internal api route
+		const response = await fetch("/api/chat", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				userInput: userInput,
+				chatHistory: newChatHistory,
+			}),
+		});
+
+		// TODO: Fix, have the actual final chat history here with the response from the AI as well
+		setChatHistory([...newChatHistory]);
 		setUserInput("");
 	}
 
