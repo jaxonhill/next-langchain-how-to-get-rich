@@ -9,16 +9,16 @@ import { ChatObject } from '@/components/ChatBubble';
 import path from "path";
 
 type Data = {
-  data: string
   chatHistory: ChatObject[],
 }
 
 const VECTOR_STORE_FILE_PATH: string = path.resolve("./public/how_to_get_rich.index");
 
-export default function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
-    const userInput = req.body.userInput;
+export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
+    const userInput: string = req.body.userInput;
     let chatHistory: ChatObject[] = req.body.chatHistory;
-    chatHistory = chatHistory.slice(1)  // Remove first message, just informs user it is AI
+    let finalId = (chatHistory[chatHistory.length - 1]).id;
+    chatHistory = chatHistory.slice(1)  // Remove first message, just informs user it is AI 
 
     try {
         // Get OpenAI API key, load chat model
@@ -32,7 +32,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse<Data>)
         const embeddingsModel = new OpenAIEmbeddings({ openAIApiKey: OPENAI_API_KEY });
 
         // Load the vector store from memory
-        const vectorStore = FaissStore.load(VECTOR_STORE_FILE_PATH, embeddingsModel);
+        const vectorStore = await FaissStore.load(VECTOR_STORE_FILE_PATH, embeddingsModel);
 
         // Create a system message to tell the AI how to operate
         const originalSystemMessage = new SystemChatMessage(
@@ -67,14 +67,27 @@ export default function handler(req: NextApiRequest, res: NextApiResponse<Data>)
 
         console.log(finalChatHistoryObj);
 
-        // Call the actual ConversationalRetrievalQAChain
-    }
+        // Create the actual ConversationalRetrievalQAChain
+        const chain = ConversationalRetrievalQAChain.fromLLM(
+            chatModel,
+            vectorStore.asRetriever(3),
+            {
+                memory: windowMemory,
+            }
+        );
 
-    catch (error) {
+        // Call the chain and await the response
+        const response = await chain.call({ question: userInput });
+        const aiResponseText = response.text;
+
+        // Take the original chatHistory and add the human query from before and ai response
+        chatHistory.push({ id: ++finalId, from: "human", chatText: userInput });  // Original human message (query)
+        chatHistory.push({ id: ++finalId, from: "ai", chatText: aiResponseText });
+
+        res.status(200).json({ chatHistory: chatHistory });
+
+    } catch (error) {
         console.log(error);
-        res.status(500).json({ data: "Something went wrong calling OpenAI API.", chatHistory: chatHistory});
+        res.status(500).json({ chatHistory: chatHistory});
     }
-
-    // TODO: Fix and return actual values
-    res.status(200).json({ data: 'John Doe', chatHistory: chatHistory });
 }

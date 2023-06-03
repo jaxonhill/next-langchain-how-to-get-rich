@@ -28,10 +28,6 @@ export default function QuestionInput({
 
 		// Create new ChatObject parameters and the newChatHistory
 		let newID: number = chatHistory[chatHistory.length - 1].id + 1;
-		let newChatHistory: ChatObject[] = [
-			...chatHistory,
-			{ id: newID, from: "human", chatText: userInput },
-		];
 
 		// Fetch the AI response using LangChain in internal api route
 		const response = await fetch("/api/chat", {
@@ -41,12 +37,15 @@ export default function QuestionInput({
 			},
 			body: JSON.stringify({
 				userInput: userInput,
-				chatHistory: newChatHistory,
+				chatHistory: chatHistory,
 			}),
 		});
 
+		const data = await response.json();
+		console.log(data);
+
 		// TODO: Fix, have the actual final chat history here with the response from the AI as well
-		setChatHistory([...newChatHistory]);
+		setChatHistory([...chatHistory]);
 		setUserInput("");
 	}
 
