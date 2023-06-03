@@ -1,14 +1,19 @@
 import { useRef, useEffect } from "react";
 import { FormEvent } from "react";
+import { ChatObject } from "./ChatBubble";
 
 interface QuestionInputProps {
 	userInput: string;
 	setUserInput: Function;
+	chatHistory: ChatObject[];
+	setChatHistory: Function;
 }
 
 export default function QuestionInput({
 	userInput,
 	setUserInput,
+	chatHistory,
+	setChatHistory,
 }: QuestionInputProps) {
 	const textArea = useRef<HTMLInputElement>(null);
 
@@ -20,7 +25,11 @@ export default function QuestionInput({
 
 	function handleSubmit(e: FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-		console.log(userInput);
+		let newID: number = chatHistory[chatHistory.length - 1].id + 1;
+		setChatHistory([
+			...chatHistory,
+			{ id: newID, from: "human", chatText: userInput },
+		]);
 		setUserInput("");
 	}
 

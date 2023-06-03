@@ -45,6 +45,8 @@ export default function Home() {
 				<QuestionInput
 					userInput={userInput}
 					setUserInput={setUserInput}
+					chatHistory={chatHistory}
+					setChatHistory={setChatHistory}
 				/>
 			</div>
 		</main>
