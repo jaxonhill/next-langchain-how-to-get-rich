@@ -25,9 +25,7 @@ export default function QuestionInput({
 
 	async function handleSubmit(e: FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-
-		// Create new ChatObject parameters and the newChatHistory
-		let newID: number = chatHistory[chatHistory.length - 1].id + 1;
+		setUserInput("");
 
 		// Fetch the AI response using LangChain in internal api route
 		const response = await fetch("/api/chat", {
@@ -45,8 +43,7 @@ export default function QuestionInput({
 		console.log(data);
 
 		// TODO: Fix, have the actual final chat history here with the response from the AI as well
-		setChatHistory([...chatHistory]);
-		setUserInput("");
+		setChatHistory([...data.chatHistory]);
 	}
 
 	return (

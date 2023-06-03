@@ -17,8 +17,13 @@ const VECTOR_STORE_FILE_PATH: string = path.resolve("./public/how_to_get_rich.in
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     const userInput: string = req.body.userInput;
     let chatHistory: ChatObject[] = req.body.chatHistory;
-    let finalId = (chatHistory[chatHistory.length - 1]).id;
-    chatHistory = chatHistory.slice(1)  // Remove first message, just informs user it is AI 
+    let finalId;
+
+    if (chatHistory.length !== 0) {
+        finalId = (chatHistory[chatHistory.length - 1]).id;
+    } else {
+        finalId = 0;
+    }
 
     try {
         // Get OpenAI API key, load chat model

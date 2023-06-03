@@ -18,9 +18,7 @@ const originalAIChatObject: ChatObject = {
 
 export default function Home() {
 	const [userInput, setUserInput] = useState<string>("");
-	const [chatHistory, setChatHistory] = useState<ChatObject[]>([
-		originalAIChatObject,
-	]);
+	const [chatHistory, setChatHistory] = useState<ChatObject[]>([]);
 
 	return (
 		<main className="my-12 mx-96">
@@ -31,6 +29,11 @@ export default function Home() {
 			</div>
 			<div className="bg-gray-800 rounded-2xl p-8">
 				<div className="text-xl">
+					<ChatBubble
+						id={originalAIChatObject.id}
+						from={originalAIChatObject.from}
+						chatText={originalAIChatObject.chatText}
+					/>
 					{chatHistory.map((chatMsg: ChatObject) => {
 						return (
 							<ChatBubble
